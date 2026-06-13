@@ -3,3 +3,4 @@ analysis/pilot-report/telemetry.db
 analysis/pilot-report/pilot_report.pdf
 analysis/pilot-report/heatmap.png
 __pycache__/
+analysis/mqtt-ingest/test_telemetry.db
