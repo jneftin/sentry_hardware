@@ -8,6 +8,13 @@ DB_PATH = "telemetry.db"
 DAYS = 7
 MINUTES = DAYS * 1440
 
+# Floor grid for the heatmap, matches the 06 pipeline example layout:
+# dock zone spans floor x 0-6m / y 0-4m, pick_face spans x 6-12m / y 0-4m, cell = 0.5m
+ZONE_CELL_BOUNDS = {
+    "dock":      (range(0, 12), range(0, 8)),    # gx 0-11, gy 0-7
+    "pick_face": (range(12, 24), range(0, 8)),   # gx 12-23, gy 0-7
+}
+
 
 def main():
     conn = sqlite3.connect(DB_PATH)
@@ -27,6 +34,8 @@ def main():
         PRIMARY KEY(ts_min,zone,node));
     """)
     cur = conn.cursor()
+    heat = {}
+
     for m in range(MINUTES):
         hour = (m // 60) % 24
         workday = ((m // 1440) % 7) < 5
@@ -41,6 +50,14 @@ def main():
         cur.execute("INSERT INTO zone_dwell VALUES(?,?,?,?)",
                     (m, "pick_face", pf_people * 60, pf_people))
 
+        # heatmap: scatter weight into a few cells per occupied zone, proportional
+        # to people present (mirrors pipeline.py adding dt per detection per cell)
+        for zone, count in (("dock", dock_people), ("pick_face", pf_people)):
+            gxr, gyr = ZONE_CELL_BOUNDS[zone]
+            for _ in range(min(count, 3)):
+                cell = (random.choice(gxr), random.choice(gyr))
+                heat[cell] = heat.get(cell, 0.0) + 1.0
+
         if busy:
             cur.execute("INSERT INTO line_counts VALUES(?,?,?,?)",
                         (m, "main_aisle", random.randint(0, 2), random.randint(0, 2)))
@@ -51,9 +68,13 @@ def main():
         cur.execute("INSERT INTO env_readings VALUES(?,?,?,?,?,?)",
                     (m, "dock", "env1", temp, humidity, max(0.0, vib)))
 
+    for (gx, gy), weight in heat.items():
+        cur.execute("INSERT INTO heatmap VALUES(?,?,?,?)", (0, gx, gy, weight))
+
     conn.commit()
     conn.close()
     print(f"wrote {MINUTES} minutes ({DAYS} days) of synthetic data -> {DB_PATH}")
+    print(f"heatmap cells: {len(heat)}")
 
 
 if __name__ == "__main__":

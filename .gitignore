@@ -1,1 +1,5 @@
 analysis/data-to-dollars/telemetry.db
+analysis/pilot-report/telemetry.db
+analysis/pilot-report/pilot_report.pdf
+analysis/pilot-report/heatmap.png
+__pycache__/

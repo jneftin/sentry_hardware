@@ -1,3 +1,7 @@
+client:
+  name: "[Client name]"
+  site: "[Site name / address]"
+
 rates:
   labor_cost_per_hour: 28
   space_cost_per_sqft_per_year: 14
