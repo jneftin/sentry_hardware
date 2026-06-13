@@ -1,0 +1,30 @@
+rates:
+  labor_cost_per_hour: 28
+  space_cost_per_sqft_per_year: 14
+  energy_rate_per_kwh: 0.18
+  anomaly_to_failure_probability: 0.05
+
+thresholds:
+  underutilized_below: 0.30
+  overutilized_above: 0.85
+  hvac_delta_alert_c: 2.0
+  vibration_anomaly_alert: 0.7
+
+zones:
+  dock:
+    sqft: 2400
+    design_capacity_people: 4
+    hvac_setpoint_c: 18
+    hvac_kw_per_degree: 0.5
+    equipment:
+      downtime_hours_per_failure: 4
+      downtime_cost_per_hour: 1200
+  pick_face:
+    sqft: 3600
+    design_capacity_people: 8
+    hvac_setpoint_c: 21
+    hvac_kw_per_degree: 0.3
+
+lines:
+  main_aisle:
+    avg_delay_seconds_per_crossing: 8
